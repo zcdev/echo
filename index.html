@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>I hear you...</title>
+    <style>
+
+    </style>
+</head>
+
+<body>
+    <h1>I hear you...</h1>
+    <div>
+        <button class="input">Speak to me</button>
+        <p class="listen"><em>...I'm listening</em></p>
+        <button class="echo">Echo to you</button>
+    </div>
+    <script>
+        var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition
+        var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList
+        var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent
+        var recognition = new SpeechRecognition();
+        var speechRecognitionList = new SpeechGrammarList();
+        recognition.grammars = speechRecognitionList;
+        recognition.continuous = false;
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        var synth = window.speechSynthesis;
+        var catchVoice = document.querySelector('.listen');
+        var speakTo = document.querySelector('.input')
+        var speakBack = document.querySelector('.echo');
+
+        var voices = [];
+        voices = synth.getVoices();
+
+        recognition.onresult = function(event) {
+            var context = event.results[0][0].transcript;
+            catchVoice.textContent = 'I heard you said: ' + context + '.';
+        }
+
+        recognition.onspeechend = function() {
+            recognition.stop();
+        }
+
+        recognition.onerror = function(event) {
+            catchVoice.textContent = 'Error occurred in recognition: ' + event.error;
+        }
+
+        speakBack.onclick = function() {
+            if (catchVoice.textContent !== '') {
+                var echo = new SpeechSynthesisUtterance(catchVoice.textContent);
+                echo.voice = voices[0];
+                synth.speak(echo);
+            }
+        }
+
+        speakTo.onclick = function() {
+            catchVoice.textContent = 'Please speak to me.';
+            recognition.start();
+        }
+    </script>
+</body>
+
+</html>
